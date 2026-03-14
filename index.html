@@ -438,6 +438,19 @@ tbody tr:hover td { background: #faf8f4; }
       <button class="btn btn-dark" onclick="saveSettings()">Save Settings</button>
     </div>
     <div class="card">
+      <div class="card-title">🔑 JSONBin API Key (required for data storage)</div>
+      <div class="fg">
+        <label>API Key</label>
+        <input id="set-binkey" type="password" placeholder="Paste your JSONBin Master Key here">
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Get free key at <strong>jsonbin.io</strong> → Sign up → API Keys</div>
+      </div>
+      <div class="fg">
+        <label>Bin ID (auto-filled after first save)</label>
+        <input id="set-binid" placeholder="Auto-generated" readonly style="background:#f0f0f0">
+      </div>
+      <button class="btn btn-gold" onclick="saveBinKey()">Save & Connect</button>
+    </div>
+    <div class="card">
       <div class="card-title">Logo & Seal (saved on this device)</div>
       <div class="fg">
         <label>School Logo</label>
@@ -507,24 +520,73 @@ const DB = { students: [], invoices: [], settings: {} };
 let currentPM = 'Cash';
 let currentInvId = null;
 
+// ── JSONBIN CONFIG ─────────────────────────────────────────────
+// JSONBin.io - free storage. BIN_ID and API_KEY set after first run.
+let BIN_ID = localStorage.getItem('ajm_bin_id') || '';
+const JSONBIN_KEY = localStorage.getItem('ajm_bin_key') || '';
+
 // ── API ────────────────────────────────────────────────────────
 async function api(action, body = {}) {
   setSyncing(true);
   try {
-    const res = await fetch('/api/data', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action, ...body })
-    });
-    const data = await res.json();
+    const result = await jsonbinOp(action, body);
     setSyncing(false);
-    if (!data.ok) throw new Error(data.error || 'Error');
-    return data;
+    return result;
   } catch (e) {
     setSyncing(false);
     setErr();
     throw e;
   }
+}
+
+async function jsonbinOp(action, body) {
+  const key = localStorage.getItem('ajm_bin_key') || '';
+  const binId = localStorage.getItem('ajm_bin_id') || '';
+  if (!key) throw new Error('No API key. Go to Settings and enter your JSONBin API key.');
+
+  if (action === 'loadAll') {
+    if (!binId) {
+      // First time — create a new bin
+      const res = await fetch('https://api.jsonbin.io/v3/b', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': key, 'X-Bin-Name': 'ajm-school' },
+        body: JSON.stringify({ students: [], invoices: [], settings: {} })
+      });
+      const data = await res.json();
+      if (data.message) throw new Error(data.message);
+      const newId = data.metadata.id;
+      localStorage.setItem('ajm_bin_id', newId);
+      return { students: [], invoices: [], settings: {} };
+    }
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+      headers: { 'X-Master-Key': key }
+    });
+    const data = await res.json();
+    if (data.message) throw new Error(data.message);
+    return data.record;
+  }
+
+  // All save operations — load current, update, save back
+  const binIdNow = localStorage.getItem('ajm_bin_id') || '';
+  if (!binIdNow) throw new Error('No bin ID. Refresh the page first.');
+
+  const getRes = await fetch(`https://api.jsonbin.io/v3/b/${binIdNow}/latest`, {
+    headers: { 'X-Master-Key': key }
+  });
+  const current = (await getRes.json()).record || { students: [], invoices: [], settings: {} };
+
+  if (action === 'saveStudents')  current.students = body.students;
+  if (action === 'saveInvoices')  current.invoices = body.invoices;
+  if (action === 'saveSettings')  current.settings = body.settings;
+
+  const putRes = await fetch(`https://api.jsonbin.io/v3/b/${binIdNow}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-Master-Key': key },
+    body: JSON.stringify(current)
+  });
+  const putData = await putRes.json();
+  if (putData.message) throw new Error(putData.message);
+  return { ok: true };
 }
 
 function setSyncing(on) {
@@ -548,7 +610,11 @@ async function boot() {
     populateStudentSelects();
     renderDashboard();
   } catch (e) {
-    document.getElementById('loader-msg').textContent = '⚠ Could not connect — ' + e.message;
+    document.getElementById('loader-msg').textContent = '⚠ ' + e.message;
+    if (e.message.includes('API key')) {
+      setTimeout(() => { document.getElementById('loader').classList.add('hide'); showPage('settings'); }, 800);
+      return;
+    }
   } finally {
     setTimeout(() => document.getElementById('loader').classList.add('hide'), 600);
   }
@@ -1135,6 +1201,10 @@ function loadSettingsUI() {
     const el = document.getElementById('set-' + k);
     if (el) el.value = s[k] || '';
   });
+  const keyEl = document.getElementById('set-binkey');
+  const idEl  = document.getElementById('set-binid');
+  if (keyEl) keyEl.value = localStorage.getItem('ajm_bin_key') || '';
+  if (idEl)  idEl.value  = localStorage.getItem('ajm_bin_id')  || '';
   ['logo', 'seal', 'sig'].forEach(key => {
     const val = localStorage.getItem('ajm_' + key);
     if (val) {
@@ -1158,6 +1228,15 @@ async function saveSettings() {
     Object.assign(DB.settings, settings);
     toast('Settings saved!', 'ok');
   } catch (e) { toast('Error: ' + e.message, 'err'); }
+}
+
+function saveBinKey() {
+  const k = document.getElementById('set-binkey').value.trim();
+  if (!k) return toast('Paste your JSONBin API key.', 'err');
+  localStorage.setItem('ajm_bin_key', k);
+  localStorage.removeItem('ajm_bin_id'); // reset bin so new one gets created
+  toast('Key saved! Loading data…', 'ok');
+  setTimeout(() => boot(), 500);
 }
 
 function uploadImg(input, key, imgId, phId) {
