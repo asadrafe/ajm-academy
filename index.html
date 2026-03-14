@@ -550,9 +550,12 @@ function setErr() {
   document.getElementById('sync-label').textContent = 'Error';
 }
 
+const DEFAULT_BIN_KEY = '$2a$10$xXh6KARpv1SfZdXrUeWzw.2t5wg3r07EUXPc8CoGjJdnhYv6OIknW';
+const DEFAULT_BIN_ID  = '69b5bee1aa77b81da9e51743';
+
 async function jsonbinGet() {
-  const key = localStorage.getItem('ajm_bin_key') || '';
-  const binId = localStorage.getItem('ajm_bin_id') || '';
+  const key   = localStorage.getItem('ajm_bin_key') || DEFAULT_BIN_KEY;
+  const binId = localStorage.getItem('ajm_bin_id')  || DEFAULT_BIN_ID;
   if (!key) throw new Error('No API key. Go to Settings and enter your JSONBin key.');
   if (!binId) return { students:[], invoices:[], settings:{}, classes:[], feeStructures:{} };
   const res = await fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest', {
@@ -564,8 +567,8 @@ async function jsonbinGet() {
 }
 
 async function jsonbinSave(record) {
-  const key = localStorage.getItem('ajm_bin_key') || '';
-  let binId = localStorage.getItem('ajm_bin_id') || '';
+  const key   = localStorage.getItem('ajm_bin_key') || DEFAULT_BIN_KEY;
+  let binId   = localStorage.getItem('ajm_bin_id')  || DEFAULT_BIN_ID;
   if (!key) throw new Error('No API key set.');
   if (!binId) {
     const res = await fetch('https://api.jsonbin.io/v3/b', {
