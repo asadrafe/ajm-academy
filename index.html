@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A.J.M. Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & BASE ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:    #1a1a2e;
+  --gold:   #c9a84c;
+  --gold-l: #e8c86a;
+  --cream:  #f5f0e8;
+  --card:   #ffffff;
+  --border: #e8e2d8;
+  --green:  #2d6a4f;
+  --red:    #9b2226;
+  --blue:   #1d3557;
+  --muted:  #7c7c7c;
+  --shadow: 0 2px 12px rgba(0,0,0,.07);
+}
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* ── NAV ──────────────────────────────────────────── */
+nav {
+  background: var(--ink);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 16px rgba(0,0,0,.2);
+}
+.nav-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  color: #fff;
+  margin-right: 12px;
+  padding: 14px 0;
+  white-space: nowrap;
+}
+.nav-brand span { color: var(--gold-l); }
+.nav-tab {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,.55);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 14px 12px;
+  cursor: pointer;
+  transition: all .2s;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.nav-tab:hover { color: rgba(255,255,255,.85); }
+.nav-tab.active { color: var(--gold-l); border-bottom-color: var(--gold-l); }
+.nav-spacer { flex: 1; }
+.sync-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #4caf50; display: inline-block; margin-right: 5px;
+}
+.sync-dot.busy { background: var(--gold); animation: pulse .8s infinite; }
+.sync-dot.err  { background: var(--red); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+#sync-label { font-size: 11px; color: rgba(255,255,255,.4); }
+
+/* ── PAGES ────────────────────────────────────────── */
+.page { display: none; padding: 20px; max-width: 1100px; margin: 0 auto; }
+.page.active { display: block; }
+h2 { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 2px; }
+.page-sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+
+/* ── CARDS ────────────────────────────────────────── */
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+}
+.card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 12px; }
+
+/* ── STATS ────────────────────────────────────────── */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+@media(max-width:700px){ .stats{grid-template-columns:repeat(2,1fr)} }
+.stat { background: var(--card); border-radius: 10px; padding: 14px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+.stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; }
+.stat-value { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; }
+.c-green { color: var(--green); }
+.c-red   { color: var(--red); }
+.c-gold  { color: var(--gold); }
+.c-blue  { color: var(--blue); }
+
+/* ── GRID ─────────────────────────────────────────── */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+@media(max-width:700px){ .grid2,.grid3{grid-template-columns:1fr} }
+
+/* ── FORMS ────────────────────────────────────────── */
+.fg { margin-bottom: 10px; }
+label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 4px; }
+input, select, textarea {
+  width: 100%; padding: 9px 12px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px;
+  background: #faf8f4; color: var(--ink); outline: none;
+  transition: border-color .2s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--gold); background: #fff; }
+textarea { resize: vertical; min-height: 60px; }
+
+/* ── BUTTONS ──────────────────────────────────────── */
+.btn {
+  padding: 9px 16px; border: none; border-radius: 8px;
+  font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 5px;
+}
+.btn-dark  { background: var(--ink); color: #fff; }
+.btn-dark:hover  { background: #2e2e4a; }
+.btn-gold  { background: var(--gold); color: var(--ink); }
+.btn-gold:hover  { background: var(--gold-l); }
+.btn-green { background: var(--green); color: #fff; }
+.btn-green:hover { opacity: .88; }
+.btn-red   { background: var(--red); color: #fff; }
+.btn-red:hover   { opacity: .88; }
+.btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--ink); }
+.btn-ghost:hover { background: var(--cream); }
+.btn-sm { padding: 5px 11px; font-size: 11px; border-radius: 6px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── TABLE ────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th { background: var(--ink); color: #fff; padding: 9px 12px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .07em; font-weight: 700; white-space: nowrap; }
+tbody td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: #faf8f4; }
+
+/* ── BADGES ───────────────────────────────────────── */
+.badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.b-paid    { background: #d4edda; color: #155724; }
+.b-unpaid  { background: #f8d7da; color: #721c24; }
+.b-partial { background: #fff3cd; color: #856404; }
+.pill { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; background: #e8f0fe; color: #1d3557; }
+
+/* ── PAYMENT MODE BUTTONS ─────────────────────────── */
+.pm-wrap { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.pm-btn {
+  padding: 6px 13px; border-radius: 20px;
+  border: 1.5px solid var(--border); background: transparent;
+  font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700;
+  cursor: pointer; transition: all .15s; color: var(--muted);
+}
+.pm-btn.active { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+
+/* ── PAYMENT SUMMARY BOX ──────────────────────────── */
+.ps-box { background: var(--ink); border-radius: 10px; padding: 14px; color: #fff; }
+.ps-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.4); margin-bottom: 10px; }
+.ps-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.07); font-size: 12px; }
+.ps-row:last-child { border-bottom: none; }
+.ps-total { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--gold-l); margin: 10px 0 6px; }
+.ps-adj-input {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+  border-radius: 6px; color: #fff; padding: 4px 8px; width: 90px;
+  font-family: 'DM Sans', sans-serif; font-size: 12px; text-align: right;
+}
+.ps-paid-input {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+  border-radius: 8px; color: #fff; padding: 8px 12px; width: 100%;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; margin-top: 6px;
+}
+
+/* ── FEE ITEMS ────────────────────────────────────── */
+.fee-row { display: grid; grid-template-columns: 1fr 110px 32px; gap: 6px; margin-bottom: 6px; align-items: end; }
+
+/* ── MODAL ────────────────────────────────────────── */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.5); z-index: 100;
+  align-items: flex-start; justify-content: center;
+  padding: 20px; overflow-y: auto;
+}
+.modal-bg.open { display: flex; }
+.modal-box {
+  background: #fff; border-radius: 14px;
+  width: 100%; max-width: 580px;
+  overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  margin: auto;
+}
+
+/* ── INVOICE PRINT STYLES ─────────────────────────── */
+.inv-hdr { background: var(--ink); color: #fff; padding: 18px 22px; display: flex; justify-content: space-between; align-items: flex-start; }
+.inv-school { font-family: 'Playfair Display', serif; font-size: 15px; }
+.inv-school span { color: var(--gold-l); }
+.inv-addr { font-size: 11px; opacity: .5; margin-top: 3px; }
+.inv-id { font-family: 'Playfair Display', serif; font-size: 14px; color: var(--gold-l); text-align: right; }
+.inv-body { padding: 18px 22px; }
+.inv-two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 14px; }
+.inv-sec { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #bbb; margin-bottom: 4px; }
+.inv-name { font-family: 'Playfair Display', serif; font-size: 14px; }
+.inv-det { font-size: 11px; color: #777; margin-top: 2px; }
+.inv-tbl table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.inv-tbl th { background: #f0ede6; padding: 6px 10px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #999; font-weight: 700; }
+.inv-tbl td { padding: 7px 10px; border-bottom: 1px solid #f0ede6; }
+.inv-tbl td:last-child, .inv-tbl th:last-child { text-align: right; }
+.itr { display: flex; justify-content: space-between; padding: 6px 12px; font-size: 12px; background: #f5f0e8; }
+.itr:nth-child(even) { background: #ede8df; }
+.itr.grand { background: var(--ink); color: #fff; font-family: 'Playfair Display', serif; font-size: 14px; }
+.itr.paid-r { background: #d4edda; color: #155724; font-weight: 700; }
+.itr.bal-r  { background: #f8d7da; color: #721c24; font-weight: 700; }
+.itr.bal-clr { background: #d4edda; color: #155724; font-weight: 700; }
+.inv-footer { display: flex; align-items: center; justify-content: space-between; border: 1px dashed #ddd; border-radius: 8px; padding: 12px 16px; margin-top: 12px; }
+.inv-watermark { font-size: 9px; text-align: center; color: #ccc; padding: 8px; letter-spacing: .1em; text-transform: uppercase; border-top: 1px dashed #eee; margin-top: 10px; }
+.inv-actions { display: flex; gap: 8px; padding: 12px 22px; border-top: 1px solid var(--border); background: #faf8f4; flex-wrap: wrap; }
+
+/* ── EDIT MODAL ───────────────────────────────────── */
+.edit-box { background: #fff; border-radius: 12px; padding: 22px; width: 95%; max-width: 420px; max-height: 90vh; overflow-y: auto; margin: auto; }
+.edit-box h3 { font-family: 'Playfair Display', serif; font-size: 16px; margin-bottom: 14px; }
+
+/* ── TOAST ────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 20px; right: 20px;
+  padding: 11px 18px; border-radius: 9px;
+  font-size: 13px; font-weight: 600; z-index: 999;
+  opacity: 0; transition: opacity .3s; pointer-events: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,.15);
+}
+.toast.show { opacity: 1; }
+.t-ok   { background: var(--green); color: #fff; }
+.t-err  { background: var(--red);   color: #fff; }
+.t-info { background: var(--blue);  color: #fff; }
+
+/* ── EMPTY STATE ──────────────────────────────────── */
+.empty { text-align: center; padding: 32px; color: var(--muted); font-size: 13px; }
+.empty-icon { font-size: 32px; margin-bottom: 8px; }
+
+/* ── LOADER ───────────────────────────────────────── */
+#loader {
+  position: fixed; inset: 0; background: var(--ink);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 200; transition: opacity .4s;
+}
+#loader.hide { opacity: 0; pointer-events: none; }
+.loader-title { font-family: 'Playfair Display', serif; font-size: 28px; color: #fff; margin-bottom: 6px; }
+.loader-title span { color: var(--gold-l); }
+.loader-sub { font-size: 12px; color: rgba(255,255,255,.4); letter-spacing: .15em; text-transform: uppercase; margin-bottom: 24px; }
+.loader-bar { width: 180px; height: 3px; background: rgba(255,255,255,.1); border-radius: 3px; overflow: hidden; }
+.loader-fill { height: 100%; background: var(--gold); border-radius: 3px; animation: fill 1.8s ease-in-out infinite; }
+@keyframes fill { 0%{width:0} 60%{width:100%} 100%{width:100%} }
+#loader-msg { font-size: 12px; color: rgba(255,255,255,.35); margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-title">A.J.M. <span>Academy</span></div>
+  <div class="loader-sub">Invoice System</div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+  <div id="loader-msg">Loading…</div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">A.J.M. <span>Academy</span></div>
+  <button class="nav-tab active" onclick="showPage('dashboard')">Dashboard</button>
+  <button class="nav-tab" onclick="showPage('students')">Students</button>
+  <button class="nav-tab" onclick="showPage('invoices')">Invoices</button>
+  <button class="nav-tab" onclick="showPage('create')">+ Invoice</button>
+  <button class="nav-tab" onclick="showPage('settings')">Settings</button>
+  <div class="nav-spacer"></div>
+  <span class="sync-dot" id="sync-dot"></span>
+  <span id="sync-label">Live</span>
+</nav>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <h2>Dashboard</h2>
+  <div class="page-sub" id="dash-sub">A.J.M. Academy</div>
+  <div class="stats" id="stats-row"></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Payment by Class</div>
+      <div id="class-overview"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Recent Invoices</div>
+      <div id="recent-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- STUDENTS -->
+<div class="page" id="page-students">
+  <h2>Students</h2>
+  <div class="page-sub">Add and manage student records</div>
+  <div class="card">
+    <div class="card-title">Add New Student</div>
+    <div class="grid3">
+      <div class="fg"><label>Full Name</label><input id="s-name" placeholder="Student full name"></div>
+      <div class="fg"><label>Class</label><input id="s-class" placeholder="e.g. Nursery, Class 3"></div>
+      <div class="fg"><label>Reg. No.</label><input id="s-reg" placeholder="e.g. REG-001"></div>
+    </div>
+    <div class="grid3">
+      <div class="fg"><label>Parent Name</label><input id="s-parent" placeholder="Father / Mother name"></div>
+      <div class="fg"><label>Contact</label><input id="s-contact" placeholder="Phone number"></div>
+      <div class="fg" style="display:flex;align-items:flex-end">
+        <button class="btn btn-dark" style="width:100%" onclick="addStudent()">Add Student</button>
+      </div>
+    </div>
+  </div>
+  <div style="margin-bottom:10px">
+    <input id="stu-q" placeholder="Search students…" style="max-width:260px" oninput="renderStudents()">
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Name</th><th>Class</th><th>Reg No</th><th>Parent</th><th>Contact</th><th>Invoices</th><th>Actions</th></tr></thead>
+      <tbody id="students-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- INVOICES -->
+<div class="page" id="page-invoices">
+  <h2>All Invoices</h2>
+  <div class="page-sub">Complete payment records</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+    <input id="inv-q" placeholder="Search student…" style="max-width:180px" oninput="renderInvoices()">
+    <select id="inv-st-f" onchange="renderInvoices()" style="max-width:130px">
+      <option value="">All Status</option>
+      <option value="paid">Paid</option>
+      <option value="unpaid">Unpaid</option>
+      <option value="partial">Partial</option>
+    </select>
+    <select id="inv-mo-f" onchange="renderInvoices()" style="max-width:150px">
+      <option value="">All Periods</option>
+    </select>
+    <button class="btn btn-ghost btn-sm" onclick="refreshAll()">↻ Refresh</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Inv #</th><th>Student</th><th>Class</th><th>Total</th><th>Paid</th><th>Balance</th><th>Status</th><th>Period</th><th>Mode</th><th>Actions</th></tr></thead>
+      <tbody id="invoices-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- CREATE INVOICE -->
+<div class="page" id="page-create">
+  <h2>Create Invoice</h2>
+  <div class="page-sub">Generate a new fee invoice</div>
+  <div class="grid2">
+    <div>
+      <div class="card">
+        <div class="card-title">Student & Period</div>
+        <div class="fg">
+          <label>Student</label>
+          <select id="ci-stu" onchange="ciStudentSelected()">
+            <option value="">— Select Student —</option>
+          </select>
+        </div>
+        <div class="grid2">
+          <div class="fg"><label>Period / Month</label><input id="ci-period" placeholder="e.g. March 2026"></div>
+          <div class="fg"><label>Status</label>
+            <select id="ci-status">
+              <option value="unpaid">Unpaid</option>
+              <option value="partial">Partial</option>
+              <option value="paid">Paid</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="fg"><label>Invoice Date</label><input id="ci-date" type="date"></div>
+          <div class="fg"><label>Due Date</label><input id="ci-due" type="date"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Fee Items</div>
+        <div id="ci-fee-items"></div>
+        <button class="btn btn-ghost btn-sm" onclick="ciAddItem()" style="margin-top:4px">+ Add Item</button>
+        <div class="fg" style="margin-top:12px">
+          <label>Notes (optional)</label>
+          <textarea id="ci-notes" placeholder="Any message for the parent…"></textarea>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="ps-box">
+        <div class="ps-title">Payment Summary</div>
+        <div class="ps-row"><span>Subtotal</span><span id="ps-sub">Rs 0</span></div>
+        <div class="ps-row">
+          <span>Discount / Adjustment</span>
+          <input class="ps-adj-input" id="ps-adj" type="number" placeholder="0" oninput="updatePS()">
+        </div>
+        <div class="ps-row"><span>Adjusted</span><span id="ps-adj-val" style="color:var(--gold-l)">—</span></div>
+        <div class="ps-total" id="ps-total">Rs 0</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em">Amount Paid (Rs)</div>
+        <input class="ps-paid-input" id="ps-paid" type="number" placeholder="0" oninput="updatePS()">
+        <div class="ps-row" style="margin-top:8px"><span>Balance</span><span id="ps-bal" style="color:#ff9999">—</span></div>
+        <div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em;margin-top:12px;margin-bottom:6px">Payment Mode</div>
+        <div class="pm-wrap">
+          <button class="pm-btn active" onclick="setPM(this,'Cash')">Cash</button>
+          <button class="pm-btn" onclick="setPM(this,'UPI')">UPI</button>
+          <button class="pm-btn" onclick="setPM(this,'Bank Transfer')">Bank Transfer</button>
+          <button class="pm-btn" onclick="setPM(this,'Other')" id="pm-other-btn">Other</button>
+        </div>
+        <input id="pm-other-txt" type="text" placeholder="Specify mode…" style="display:none;margin-top:8px" class="ps-paid-input" oninput="currentPM=this.value||'Other'">
+        <button class="btn btn-gold" style="width:100%;margin-top:16px;padding:12px" id="gen-btn" onclick="generateInvoice()">Generate Invoice</button>
+        <button class="btn btn-ghost" style="width:100%;margin-top:8px;color:rgba(255,255,255,.3);border-color:rgba(255,255,255,.15)" onclick="clearCreate()">Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+  <h2>Settings</h2>
+  <div class="page-sub">School information</div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">School Info</div>
+      <div class="fg"><label>School Name</label><input id="set-name"></div>
+      <div class="fg"><label>Address</label><input id="set-addr"></div>
+      <div class="fg"><label>Phone</label><input id="set-phone"></div>
+      <div class="fg"><label>Email</label><input id="set-email"></div>
+      <button class="btn btn-dark" onclick="saveSettings()">Save Settings</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Logo & Seal (saved on this device)</div>
+      <div class="fg">
+        <label>School Logo</label>
+        <div id="logo-preview" style="min-height:50px;border:1px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;padding:6px">
+          <span id="logo-ph" style="color:#bbb;font-size:11px">No logo uploaded</span>
+          <img id="logo-img" style="max-height:64px;display:none;border-radius:4px">
+        </div>
+        <input type="file" accept="image/*" onchange="uploadImg(this,'ajm_logo','logo-img','logo-ph')" style="font-size:11px">
+      </div>
+      <div class="fg">
+        <label>Seal / Stamp</label>
+        <div id="seal-preview" style="min-height:50px;border:1px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;padding:6px">
+          <span id="seal-ph" style="color:#bbb;font-size:11px">No seal uploaded</span>
+          <img id="seal-img" style="max-height:64px;display:none;border-radius:50%">
+        </div>
+        <input type="file" accept="image/*" onchange="uploadImg(this,'ajm_seal','seal-img','seal-ph')" style="font-size:11px">
+      </div>
+      <div class="fg">
+        <label>Signature</label>
+        <div style="min-height:44px;border:1px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;padding:6px">
+          <span id="sig-ph" style="color:#bbb;font-size:11px">No signature uploaded</span>
+          <img id="sig-img" style="max-height:44px;display:none">
+        </div>
+        <input type="file" accept="image/*" onchange="uploadImg(this,'ajm_sig','sig-img','sig-ph')" style="font-size:11px">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INVOICE VIEW MODAL -->
+<div class="modal-bg" id="inv-modal">
+  <div class="modal-box">
+    <div id="inv-modal-body"></div>
+    <div class="inv-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Close</button>
+      <button class="btn btn-ghost btn-sm" onclick="cycleStatus()">Change Status</button>
+      <button class="btn btn-ghost btn-sm" onclick="editInv()">✏ Edit</button>
+      <button class="btn btn-red btn-sm" onclick="deleteInv()">Delete</button>
+      <button class="btn btn-gold btn-sm" onclick="printInv()">🖨 Print / PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT STUDENT MODAL -->
+<div class="modal-bg" id="stu-modal">
+  <div class="edit-box">
+    <h3>Edit Student</h3>
+    <input type="hidden" id="edit-stu-id">
+    <div class="fg"><label>Full Name</label><input id="edit-stu-name"></div>
+    <div class="fg"><label>Class</label><input id="edit-stu-class"></div>
+    <div class="fg"><label>Reg. No.</label><input id="edit-stu-reg"></div>
+    <div class="fg"><label>Parent Name</label><input id="edit-stu-parent"></div>
+    <div class="fg"><label>Contact</label><input id="edit-stu-contact"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-dark" onclick="saveEditStudent()">Save</button>
+      <button class="btn btn-ghost" onclick="closeModal('stu-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────
+const DB = { students: [], invoices: [], settings: {} };
+let currentPM = 'Cash';
+let currentInvId = null;
+
+// ── API ────────────────────────────────────────────────────────
+async function api(action, body = {}) {
+  setSyncing(true);
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action, ...body })
+    });
+    const data = await res.json();
+    setSyncing(false);
+    if (!data.ok) throw new Error(data.error || 'Error');
+    return data;
+  } catch (e) {
+    setSyncing(false);
+    setErr();
+    throw e;
+  }
+}
+
+function setSyncing(on) {
+  document.getElementById('sync-dot').className = 'sync-dot' + (on ? ' busy' : '');
+  document.getElementById('sync-label').textContent = on ? 'Saving…' : 'Live';
+}
+function setErr() {
+  document.getElementById('sync-dot').className = 'sync-dot err';
+  document.getElementById('sync-label').textContent = 'Error';
+}
+
+// ── BOOT ───────────────────────────────────────────────────────
+async function boot() {
+  document.getElementById('loader-msg').textContent = 'Loading data…';
+  try {
+    const data = await api('loadAll');
+    DB.students = data.students || [];
+    DB.invoices = data.invoices || [];
+    DB.settings = data.settings || {};
+    loadSettingsUI();
+    populateStudentSelects();
+    renderDashboard();
+  } catch (e) {
+    document.getElementById('loader-msg').textContent = '⚠ Could not connect — ' + e.message;
+  } finally {
+    setTimeout(() => document.getElementById('loader').classList.add('hide'), 600);
+  }
+}
+boot();
+
+// ── NAVIGATION ────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const idx = { dashboard: 0, students: 1, invoices: 2, create: 3, settings: 4 };
+  if (tabs[idx[id]]) tabs[idx[id]].classList.add('active');
+  if (id === 'students') renderStudents();
+  if (id === 'invoices') renderInvoices();
+  if (id === 'create')   setupCreate();
+  if (id === 'dashboard') renderDashboard();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+const fmt   = n => 'Rs ' + Number(n || 0).toLocaleString('en-IN');
+const getStu = id => DB.students.find(s => s.id === id) || {};
+const bHtml  = s => `<span class="badge b-${s}">${s}</span>`;
+const invTotal = inv => Math.max(0, (inv.items || []).reduce((a, x) => a + Number(x.amt || 0), 0) - Number(inv.adj || 0));
+const invBal   = inv => inv.status === 'paid' ? 0 : Math.max(0, invTotal(inv) - Number(inv.paid || 0));
+
+function nextId() {
+  const nums = DB.invoices.map(i => parseInt((i.id || '').replace(/\D/g, ''))).filter(n => !isNaN(n));
+  return 'AJM-' + String((nums.length ? Math.max(...nums) : 0) + 1).padStart(4, '0');
+}
+
+function toast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast t-${type === 'ok' ? 'ok' : type === 'err' ? 'err' : 'info'} show`;
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+function populateStudentSelects() {
+  const opts = '<option value="">— Select Student —</option>' +
+    DB.students.map(s => `<option value="${s.id}">${s.name}${s.class ? ' · ' + s.class : ''}${s.reg ? ' (' + s.reg + ')' : ''}</option>`).join('');
+  document.getElementById('ci-stu').innerHTML = opts;
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+function renderDashboard() {
+  const paid    = DB.invoices.filter(i => i.status === 'paid').length;
+  const unpaid  = DB.invoices.filter(i => i.status === 'unpaid').length;
+  const partial = DB.invoices.filter(i => i.status === 'partial').length;
+  const collected   = DB.invoices.reduce((s, i) => s + Number(i.paid || 0), 0);
+  const billed      = DB.invoices.reduce((s, i) => s + invTotal(i), 0);
+  const outstanding = DB.invoices.filter(i => i.status !== 'paid').reduce((s, i) => s + invBal(i), 0);
+
+  const set = DB.settings;
+  document.getElementById('dash-sub').textContent = (set.name || 'A.J.M. Academy') + (set.addr ? ' — ' + set.addr : '');
+
+  document.getElementById('stats-row').innerHTML = [
+    ['Students',     DB.students.length, ''],
+    ['Invoices',     DB.invoices.length, ''],
+    ['Paid',         paid,               'c-green'],
+    ['Unpaid',       unpaid,             'c-red'],
+    ['Collected',    fmt(collected),     'c-green'],
+    ['Outstanding',  fmt(outstanding),   'c-red'],
+    ['Total Billed', fmt(billed),        'c-blue'],
+    ['Partial',      partial,            'c-gold'],
+  ].map(([l, v, c]) => `<div class="stat"><div class="stat-label">${l}</div><div class="stat-value ${c}">${v}</div></div>`).join('');
+
+  // Class overview
+  const classes = [...new Set(DB.students.map(s => s.class).filter(Boolean))];
+  document.getElementById('class-overview').innerHTML = classes.length
+    ? classes.map(cls => {
+        const stuIds = DB.students.filter(s => s.class === cls).map(s => s.id);
+        const ci = DB.invoices.filter(i => stuIds.includes(i.stuId));
+        const p = ci.filter(i => i.status === 'paid').length;
+        const u = ci.filter(i => i.status === 'unpaid').length;
+        const pa = ci.filter(i => i.status === 'partial').length;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px">
+          <strong>${cls}</strong>
+          <span style="display:flex;gap:4px">${p ? `<span class="badge b-paid">${p}p</span>` : ''}${u ? `<span class="badge b-unpaid">${u}u</span>` : ''}${pa ? `<span class="badge b-partial">${pa}pa</span>` : ''}${!p&&!u&&!pa?'<span style="color:#ccc">no invoices</span>':''}</span>
+        </div>`;
+      }).join('')
+    : '<div class="empty"><div class="empty-icon">📋</div>No students yet</div>';
+
+  // Recent invoices
+  document.getElementById('recent-list').innerHTML = [...DB.invoices].reverse().slice(0, 6).map(inv => {
+    const s = getStu(inv.stuId);
+    return `<div onclick="viewInvoice('${inv.id}')" style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;cursor:pointer;gap:6px">
+      <span style="color:var(--blue);font-weight:700;white-space:nowrap">${inv.id}</span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name || '—'}</span>
+      <span style="white-space:nowrap">${fmt(invTotal(inv))}</span>
+      ${bHtml(inv.status)}
+    </div>`;
+  }).join('') || '<div class="empty"><div class="empty-icon">📄</div>No invoices yet</div>';
+}
+
+// ── STUDENTS ──────────────────────────────────────────────────
+async function addStudent() {
+  const name = document.getElementById('s-name').value.trim();
+  const cls  = document.getElementById('s-class').value.trim();
+  if (!name) return toast('Name is required.', 'err');
+  const s = {
+    id: 'stu_' + Date.now(),
+    name, class: cls,
+    reg:     document.getElementById('s-reg').value.trim(),
+    parent:  document.getElementById('s-parent').value.trim(),
+    contact: document.getElementById('s-contact').value.trim(),
+  };
+  DB.students.push(s);
+  try {
+    await api('saveStudents', { students: DB.students });
+    ['s-name','s-class','s-reg','s-parent','s-contact'].forEach(id => document.getElementById(id).value = '');
+    populateStudentSelects();
+    renderStudents();
+    renderDashboard();
+    toast('Student added!', 'ok');
+  } catch (e) { DB.students.pop(); toast('Error: ' + e.message, 'err'); }
+}
+
+async function deleteStudent(id) {
+  if (!confirm('Delete this student?')) return;
+  const prev = [...DB.students];
+  DB.students = DB.students.filter(s => s.id !== id);
+  try {
+    await api('saveStudents', { students: DB.students });
+    renderStudents(); renderDashboard(); toast('Deleted.', 'ok');
+  } catch (e) { DB.students = prev; toast('Error: ' + e.message, 'err'); }
+}
+
+function openEditStudent(id) {
+  const s = getStu(id);
+  document.getElementById('edit-stu-id').value      = id;
+  document.getElementById('edit-stu-name').value    = s.name || '';
+  document.getElementById('edit-stu-class').value   = s.class || '';
+  document.getElementById('edit-stu-reg').value     = s.reg || '';
+  document.getElementById('edit-stu-parent').value  = s.parent || '';
+  document.getElementById('edit-stu-contact').value = s.contact || '';
+  document.getElementById('stu-modal').classList.add('open');
+}
+
+async function saveEditStudent() {
+  const id = document.getElementById('edit-stu-id').value;
+  const s = getStu(id);
+  Object.assign(s, {
+    name:    document.getElementById('edit-stu-name').value.trim(),
+    class:   document.getElementById('edit-stu-class').value.trim(),
+    reg:     document.getElementById('edit-stu-reg').value.trim(),
+    parent:  document.getElementById('edit-stu-parent').value.trim(),
+    contact: document.getElementById('edit-stu-contact').value.trim(),
+  });
+  try {
+    await api('saveStudents', { students: DB.students });
+    closeModal('stu-modal');
+    renderStudents(); populateStudentSelects(); toast('Updated!', 'ok');
+  } catch (e) { toast('Error: ' + e.message, 'err'); }
+}
+
+function renderStudents() {
+  const q = document.getElementById('stu-q').value.toLowerCase();
+  const f = DB.students.filter(s => !q || s.name.toLowerCase().includes(q));
+  document.getElementById('students-body').innerHTML = f.length
+    ? f.map((s, i) => {
+        const invCount = DB.invoices.filter(v => v.stuId === s.id).length;
+        return `<tr>
+          <td>${i + 1}</td>
+          <td><strong>${s.name}</strong></td>
+          <td><span class="pill">${s.class || '—'}</span></td>
+          <td>${s.reg || '—'}</td>
+          <td>${s.parent || '—'}</td>
+          <td>${s.contact || '—'}</td>
+          <td><span style="color:var(--blue);font-weight:700;font-size:11px">${invCount}×</span></td>
+          <td style="display:flex;gap:4px">
+            <button class="btn btn-ghost btn-sm" onclick="openEditStudent('${s.id}')">✏</button>
+            <button class="btn btn-gold btn-sm" onclick="quickInv('${s.id}')">+ Inv</button>
+            <button class="btn btn-red btn-sm" onclick="deleteStudent('${s.id}')">✕</button>
+          </td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="8"><div class="empty"><div class="empty-icon">👤</div>No students found</div></td></tr>';
+}
+
+function quickInv(stuId) {
+  showPage('create');
+  setTimeout(() => {
+    document.getElementById('ci-stu').value = stuId;
+    ciStudentSelected();
+  }, 100);
+}
+
+// ── CREATE INVOICE ─────────────────────────────────────────────
+function setupCreate() {
+  const today = new Date();
+  document.getElementById('ci-date').value = today.toISOString().split('T')[0];
+  const last = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  document.getElementById('ci-due').value = last.toISOString().split('T')[0];
+  document.getElementById('ci-period').value = today.toLocaleString('default', { month: 'long', year: 'numeric' });
+  populateStudentSelects();
+  if (!document.getElementById('ci-fee-items').children.length) ciAddItem();
+  updatePS();
+}
+
+function ciStudentSelected() {
+  // auto-fill class label in period if needed — no-op for now
+  updatePS();
+}
+
+function ciAddItem(desc = '', amt = '') {
+  const div = document.createElement('div');
+  div.className = 'fee-row';
+  div.innerHTML = `
+    <input placeholder="Fee description" value="${desc}" oninput="updatePS()">
+    <input type="number" placeholder="Amount" value="${amt}" oninput="updatePS()">
+    <button class="btn btn-ghost btn-sm" onclick="this.closest('.fee-row').remove();updatePS()">✕</button>`;
+  document.getElementById('ci-fee-items').appendChild(div);
+  updatePS();
+}
+
+function updatePS() {
+  const items = getItems();
+  const sub = items.reduce((a, x) => a + x.amt, 0);
+  const adj = parseFloat(document.getElementById('ps-adj').value) || 0;
+  const total = Math.max(0, sub - adj);
+  const paid = parseFloat(document.getElementById('ps-paid').value) || 0;
+  const bal = Math.max(0, total - paid);
+  document.getElementById('ps-sub').textContent = fmt(sub);
+  document.getElementById('ps-adj-val').textContent = adj > 0 ? '– ' + fmt(adj) : '—';
+  document.getElementById('ps-total').textContent = fmt(total);
+  document.getElementById('ps-bal').textContent = bal > 0 ? fmt(bal) : 'Cleared';
+  document.getElementById('ps-bal').style.color = bal > 0 ? '#ff9999' : '#88dd99';
+}
+
+function getItems() {
+  const rows = document.querySelectorAll('#ci-fee-items .fee-row');
+  const items = [];
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const desc = inputs[0].value.trim(), amt = Number(inputs[1].value) || 0;
+    if (desc || amt) items.push({ desc, amt });
+  });
+  return items;
+}
+
+function setPM(btn, mode) {
+  currentPM = mode;
+  document.querySelectorAll('.pm-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const other = document.getElementById('pm-other-txt');
+  other.style.display = mode === 'Other' ? 'block' : 'none';
+  if (mode !== 'Other') other.value = '';
+}
+
+async function generateInvoice() {
+  const stuId = document.getElementById('ci-stu').value;
+  if (!stuId) return toast('Select a student.', 'err');
+  const items = getItems();
+  if (!items.length) return toast('Add at least one fee item.', 'err');
+
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+
+  const inv = {
+    id:     nextId(),
+    stuId,
+    period: document.getElementById('ci-period').value,
+    date:   document.getElementById('ci-date').value,
+    due:    document.getElementById('ci-due').value,
+    status: document.getElementById('ci-status').value,
+    items,
+    adj:    parseFloat(document.getElementById('ps-adj').value) || 0,
+    paid:   parseFloat(document.getElementById('ps-paid').value) || 0,
+    pm:     currentPM,
+    notes:  document.getElementById('ci-notes').value.trim(),
+  };
+
+  DB.invoices.push(inv);
+  try {
+    await api('saveInvoices', { invoices: DB.invoices });
+    toast('Invoice ' + inv.id + ' created!', 'ok');
+    renderDashboard();
+    viewInvoice(inv.id);
+    clearCreate();
+  } catch (e) {
+    DB.invoices.pop();
+    toast('Error: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Generate Invoice';
+  }
+}
+
+function clearCreate() {
+  document.getElementById('ci-stu').value = '';
+  document.getElementById('ci-fee-items').innerHTML = '';
+  document.getElementById('ci-notes').value = '';
+  document.getElementById('ps-adj').value = '';
+  document.getElementById('ps-paid').value = '';
+  document.getElementById('ci-status').value = 'unpaid';
+  // Reset gen-btn in case it was in edit mode
+  const btn = document.getElementById('gen-btn');
+  btn.textContent = 'Generate Invoice';
+  btn.onclick = generateInvoice;
+  ciAddItem();
+  updatePS();
+}
+
+// ── INVOICES LIST ──────────────────────────────────────────────
+function renderInvoices() {
+  const months = [...new Set(DB.invoices.map(i => i.period).filter(Boolean))];
+  const mf = document.getElementById('inv-mo-f');
+  const cur = mf.value;
+  mf.innerHTML = '<option value="">All Periods</option>' + months.map(m => `<option value="${m}" ${m === cur ? 'selected' : ''}>${m}</option>`).join('');
+
+  const q   = document.getElementById('inv-q').value.toLowerCase();
+  const stF = document.getElementById('inv-st-f').value;
+  const mF  = mf.value;
+
+  const f = DB.invoices.filter(inv => {
+    const s = getStu(inv.stuId);
+    return (!q || (s.name || '').toLowerCase().includes(q))
+      && (!stF || inv.status === stF)
+      && (!mF  || inv.period === mF);
+  });
+
+  document.getElementById('invoices-body').innerHTML = f.length
+    ? [...f].reverse().map(inv => {
+        const s = getStu(inv.stuId);
+        const total = invTotal(inv), bal = invBal(inv);
+        return `<tr>
+          <td><strong style="color:var(--blue);cursor:pointer" onclick="viewInvoice('${inv.id}')">${inv.id}</strong></td>
+          <td>${s.name || '—'}</td>
+          <td><span class="pill">${s.class || '—'}</span></td>
+          <td>${fmt(total)}</td>
+          <td style="color:var(--green)">${fmt(inv.paid || 0)}</td>
+          <td style="color:${bal > 0 ? 'var(--red)' : 'var(--green)'};font-weight:700">${bal > 0 ? fmt(bal) : '✓'}</td>
+          <td>${bHtml(inv.status)}</td>
+          <td style="font-size:11px">${inv.period || '—'}</td>
+          <td style="font-size:11px;color:var(--muted)">${inv.pm || '—'}</td>
+          <td style="display:flex;gap:3px">
+            <button class="btn btn-ghost btn-sm" onclick="viewInvoice('${inv.id}')">View</button>
+            <button class="btn btn-green btn-sm" onclick="markPaidQuick('${inv.id}')">✓ Paid</button>
+            <button class="btn btn-red btn-sm" onclick="deleteInvById('${inv.id}')">✕</button>
+          </td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="10"><div class="empty"><div class="empty-icon">📋</div>No invoices found</div></td></tr>';
+}
+
+async function markPaidQuick(id) {
+  const inv = DB.invoices.find(i => i.id === id);
+  if (!inv) return;
+  inv.status = 'paid';
+  inv.paid = invTotal(inv);
+  try {
+    await api('saveInvoices', { invoices: DB.invoices });
+    renderInvoices(); renderDashboard(); toast(id + ' marked paid!', 'ok');
+  } catch (e) { toast('Error: ' + e.message, 'err'); }
+}
+
+async function deleteInvById(id) {
+  if (!confirm('Delete invoice ' + id + '?')) return;
+  const prev = [...DB.invoices];
+  DB.invoices = DB.invoices.filter(i => i.id !== id);
+  try {
+    await api('saveInvoices', { invoices: DB.invoices });
+    renderInvoices(); renderDashboard(); toast('Deleted.', 'ok');
+  } catch (e) { DB.invoices = prev; toast('Error: ' + e.message, 'err'); }
+}
+
+async function refreshAll() {
+  toast('Refreshing…', 'info');
+  try {
+    const data = await api('loadAll');
+    DB.students = data.students || [];
+    DB.invoices = data.invoices || [];
+    DB.settings = data.settings || {};
+    populateStudentSelects();
+    renderInvoices(); renderDashboard();
+    toast('Refreshed!', 'ok');
+  } catch (e) { toast('Failed: ' + e.message, 'err'); }
+}
+
+// ── INVOICE VIEW ───────────────────────────────────────────────
+function viewInvoice(id) {
+  const inv = DB.invoices.find(i => i.id === id);
+  if (!inv) return;
+  currentInvId = id;
+  const s   = getStu(inv.stuId);
+  const set = DB.settings;
+  const total = invTotal(inv), bal = invBal(inv);
+
+  const logo = localStorage.getItem('ajm_logo');
+  const seal = localStorage.getItem('ajm_seal');
+  const sig  = localStorage.getItem('ajm_sig');
+
+  const logoH = logo ? `<img src="${logo}" style="height:40px;width:40px;object-fit:contain;border-radius:4px;margin-right:10px">` : '';
+  const sigH  = sig  ? `<img src="${sig}" style="max-height:44px;max-width:110px">` : '<span style="font-size:10px;color:#ccc">No signature</span>';
+  const sealH = seal ? `<img src="${seal}" style="height:52px;width:52px;border-radius:50%;object-fit:contain">` : `<div style="width:52px;height:52px;border-radius:50%;border:2px double var(--gold);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:var(--gold);text-align:center;padding:4px">${set.stamp||'SEAL'}</div>`;
+
+  const rows = (inv.items || []).map((it, i) =>
+    `<tr><td>${i+1}</td><td>${it.desc}</td><td style="text-align:right">${fmt(it.amt)}</td></tr>`).join('');
+
+  document.getElementById('inv-modal-body').innerHTML = `
+    <div class="inv-hdr">
+      <div style="display:flex;align-items:center">
+        ${logoH}
+        <div>
+          <div class="inv-school">${set.name || 'A.J.M. Academy'}</div>
+          <div class="inv-addr">${set.addr || ''}${set.phone ? ' | ' + set.phone : ''}</div>
+        </div>
+      </div>
+      <div>
+        <div class="inv-id">${inv.id}</div>
+        <div style="font-size:10px;opacity:.5;margin-top:2px;text-align:right">Date: ${inv.date || '—'}</div>
+        <div style="font-size:10px;opacity:.5;text-align:right">Due: ${inv.due || '—'}</div>
+        <div style="margin-top:6px;text-align:right">${bHtml(inv.status)}</div>
+      </div>
+    </div>
+    <div class="inv-body">
+      <div class="inv-two">
+        <div>
+          <div class="inv-sec">Billed To</div>
+          <div class="inv-name">${s.name || '—'}</div>
+          <div class="inv-det">Class: ${s.class || '—'} | Reg: ${s.reg || '—'}</div>
+          <div class="inv-det">Parent: ${s.parent || '—'}</div>
+          <div class="inv-det">${s.contact || '—'}</div>
+        </div>
+        <div>
+          <div class="inv-sec">Period</div>
+          <div style="font-size:14px;font-weight:700">${inv.period || '—'}</div>
+          <div style="margin-top:8px">
+            <span style="display:inline-block;padding:3px 10px;border-radius:20px;background:#fdf5e0;color:#b8943f;font-size:10px;font-weight:700;border:1px solid #e8c86a">💳 ${inv.pm || 'Cash'}</span>
+          </div>
+        </div>
+      </div>
+      <div class="inv-tbl">
+        <table>
+          <thead><tr><th>#</th><th>Description</th><th style="text-align:right">Amount</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div style="margin-top:6px;border-radius:8px;overflow:hidden">
+        ${inv.adj > 0 ? `
+          <div class="itr"><span>Subtotal</span><span>${fmt((inv.items||[]).reduce((a,x)=>a+Number(x.amt||0),0))}</span></div>
+          <div class="itr" style="color:var(--gold)"><span>Adjustment / Discount</span><span>– ${fmt(inv.adj)}</span></div>` : ''}
+        <div class="itr grand"><span>Total Due</span><span>${fmt(total)}</span></div>
+        ${inv.paid > 0 ? `<div class="itr paid-r"><span>✓ Amount Paid</span><span>${fmt(inv.paid)}</span></div>` : ''}
+        <div class="itr ${bal <= 0 ? 'bal-clr' : 'bal-r'}"><span>${bal <= 0 ? '✓ Cleared' : 'Balance Due'}</span><span>${bal <= 0 ? 'Nil' : fmt(bal)}</span></div>
+      </div>
+      ${inv.notes ? `<div style="background:#f5f0e8;border-radius:7px;padding:9px 12px;font-size:11px;color:#666;margin-top:10px">📌 ${inv.notes}</div>` : ''}
+      <div class="inv-footer">
+        <div style="text-align:center;flex:1">${sigH}</div>
+        <div style="width:1px;background:#ddd;margin:0 14px;align-self:stretch"></div>
+        <div style="text-align:center">${sealH}</div>
+      </div>
+      <div style="text-align:center;font-size:9px;color:#bbb;margin-top:4px;letter-spacing:.06em">AUTHORISED SIGNATORY & SEAL</div>
+      <div class="inv-watermark">A.J.M. Academy | ${new Date().toLocaleDateString()} | Digital Record</div>
+    </div>`;
+
+  document.getElementById('inv-modal').classList.add('open');
+}
+
+function closeModal(id = 'inv-modal') {
+  document.getElementById(id).classList.remove('open');
+  if (id === 'inv-modal') currentInvId = null;
+}
+document.getElementById('inv-modal').addEventListener('click', e => { if (e.target.id === 'inv-modal') closeModal(); });
+document.getElementById('stu-modal').addEventListener('click', e => { if (e.target.id === 'stu-modal') closeModal('stu-modal'); });
+
+async function cycleStatus() {
+  const inv = DB.invoices.find(i => i.id === currentInvId);
+  if (!inv) return;
+  inv.status = { paid: 'unpaid', unpaid: 'partial', partial: 'paid' }[inv.status];
+  if (inv.status === 'paid')   inv.paid = invTotal(inv);
+  if (inv.status === 'unpaid') inv.paid = 0;
+  try {
+    await api('saveInvoices', { invoices: DB.invoices });
+    viewInvoice(currentInvId);
+    renderDashboard();
+    toast('Status: ' + inv.status, 'ok');
+  } catch (e) { toast('Error: ' + e.message, 'err'); }
+}
+
+async function deleteInv() {
+  if (!currentInvId || !confirm('Delete ' + currentInvId + '?')) return;
+  const id = currentInvId;
+  const prev = [...DB.invoices];
+  DB.invoices = DB.invoices.filter(i => i.id !== id);
+  try {
+    await api('saveInvoices', { invoices: DB.invoices });
+    closeModal();
+    renderInvoices(); renderDashboard();
+    toast('Deleted.', 'ok');
+  } catch (e) { DB.invoices = prev; toast('Error: ' + e.message, 'err'); }
+}
+
+function editInv() {
+  const inv = DB.invoices.find(i => i.id === currentInvId);
+  if (!inv) return;
+  closeModal();
+  showPage('create');
+  setTimeout(() => {
+    document.getElementById('ci-stu').value    = inv.stuId;
+    document.getElementById('ci-period').value = inv.period || '';
+    document.getElementById('ci-date').value   = inv.date || '';
+    document.getElementById('ci-due').value    = inv.due || '';
+    document.getElementById('ci-status').value = inv.status || 'unpaid';
+    document.getElementById('ci-notes').value  = inv.notes || '';
+    document.getElementById('ps-adj').value    = inv.adj || '';
+    document.getElementById('ps-paid').value   = inv.paid || '';
+    document.getElementById('ci-fee-items').innerHTML = '';
+    (inv.items || []).forEach(it => ciAddItem(it.desc, it.amt));
+    updatePS();
+    const btn = document.getElementById('gen-btn');
+    btn.textContent = 'Update Invoice';
+    btn.onclick = () => updateInv(inv.id);
+  }, 100);
+}
+
+async function updateInv(id) {
+  const inv = DB.invoices.find(i => i.id === id);
+  if (!inv) return;
+  const items = getItems();
+  if (!items.length) return toast('Add at least one fee item.', 'err');
+  Object.assign(inv, {
+    stuId:  document.getElementById('ci-stu').value,
+    period: document.getElementById('ci-period').value,
+    date:   document.getElementById('ci-date').value,
+    due:    document.getElementById('ci-due').value,
+    status: document.getElementById('ci-status').value,
+    items,
+    adj:    parseFloat(document.getElementById('ps-adj').value) || 0,
+    paid:   parseFloat(document.getElementById('ps-paid').value) || 0,
+    pm:     currentPM,
+    notes:  document.getElementById('ci-notes').value.trim(),
+  });
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    await api('saveInvoices', { invoices: DB.invoices });
+    toast('Invoice updated!', 'ok');
+    renderInvoices(); renderDashboard();
+    clearCreate();
+  } catch (e) { toast('Error: ' + e.message, 'err'); }
+  finally { btn.disabled = false; }
+}
+
+// ── PRINT ──────────────────────────────────────────────────────
+function printInv() {
+  const content = document.getElementById('inv-modal-body').innerHTML;
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+  *{box-sizing:border-box;margin:0;padding:0}body{font-family:'DM Sans',sans-serif;max-width:680px;margin:0 auto;padding:10px;font-size:13px}
+  .inv-hdr{background:#1a1a2e;color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-start}
+  .inv-school{font-family:'Playfair Display',serif;font-size:15px}.inv-school span{color:#e8c86a}
+  .inv-addr{font-size:10px;opacity:.5;margin-top:2px}.inv-id{font-family:'Playfair Display',serif;font-size:13px;color:#e8c86a;text-align:right}
+  .inv-body{padding:16px 20px}
+  .inv-two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
+  .inv-sec{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#bbb;margin-bottom:3px}
+  .inv-name{font-family:'Playfair Display',serif;font-size:13px;font-weight:700}.inv-det{font-size:10px;color:#777;margin-top:1px}
+  .inv-tbl table{width:100%;border-collapse:collapse;font-size:11px}
+  .inv-tbl th{background:#f0ede6;padding:5px 8px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#999}
+  .inv-tbl td{padding:6px 8px;border-bottom:1px solid #f0ede6}
+  .inv-tbl td:last-child,.inv-tbl th:last-child{text-align:right}
+  .itr{display:flex;justify-content:space-between;padding:5px 10px;font-size:11px;background:#f5f0e8}
+  .itr.grand{background:#1a1a2e;color:#fff;font-family:'Playfair Display',serif}
+  .itr.paid-r{background:#d4edda;color:#155724;font-weight:700}
+  .itr.bal-r{background:#f8d7da;color:#721c24;font-weight:700}
+  .itr.bal-clr{background:#d4edda;color:#155724;font-weight:700}
+  .inv-footer{display:flex;align-items:center;justify-content:space-between;border:1px dashed #ddd;border-radius:6px;padding:10px 14px;margin-top:10px}
+  .inv-watermark{font-size:8px;text-align:center;color:#ccc;padding:6px;letter-spacing:.1em;text-transform:uppercase;border-top:1px dashed #eee;margin-top:8px}
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;text-transform:uppercase}
+  .b-paid{background:#d4edda;color:#155724}.b-unpaid{background:#f8d7da;color:#721c24}.b-partial{background:#fff3cd;color:#856404}
+  .pill{display:inline-block;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;background:#e8f0fe;color:#1d3557}
+  @media print{body{max-width:100%}}
+  </style></head><body>${content}<scr` + `ipt>window.onload=()=>window.print()<\/scr` + `ipt></body></html>`);
+  win.document.close();
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────
+function loadSettingsUI() {
+  const s = DB.settings;
+  ['name', 'addr', 'phone', 'email'].forEach(k => {
+    const el = document.getElementById('set-' + k);
+    if (el) el.value = s[k] || '';
+  });
+  ['logo', 'seal', 'sig'].forEach(key => {
+    const val = localStorage.getItem('ajm_' + key);
+    if (val) {
+      const img = document.getElementById(key + '-img');
+      const ph  = document.getElementById(key + '-ph');
+      if (img) { img.src = val; img.style.display = 'block'; }
+      if (ph)  ph.style.display = 'none';
+    }
+  });
+}
+
+async function saveSettings() {
+  const settings = {
+    name:  document.getElementById('set-name').value.trim(),
+    addr:  document.getElementById('set-addr').value.trim(),
+    phone: document.getElementById('set-phone').value.trim(),
+    email: document.getElementById('set-email').value.trim(),
+  };
+  try {
+    await api('saveSettings', { settings });
+    Object.assign(DB.settings, settings);
+    toast('Settings saved!', 'ok');
+  } catch (e) { toast('Error: ' + e.message, 'err'); }
+}
+
+function uploadImg(input, key, imgId, phId) {
+  const file = input.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    localStorage.setItem(key, e.target.result);
+    const img = document.getElementById(imgId);
+    const ph  = document.getElementById(phId);
+    img.src = e.target.result; img.style.display = 'block';
+    ph.style.display = 'none';
+    toast('Saved!', 'ok');
+  };
+  r.readAsDataURL(file);
+}
+</script>
+</body>
+</html>
